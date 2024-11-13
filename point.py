@@ -9,3 +9,6 @@ class Point:
 
     def get_y(self):
         return self.__y
+
+    def __repr__(self) -> str:
+        return f"({self.__x},{self.__y})"
