@@ -40,5 +40,5 @@ class TWindow():
         self.__isrunning = False
         print("closing window...")
 
-    def draw_line(self, line: Line, fill_color:str) -> None:
+    def draw_line(self, line: Line, fill_color:str = "blue") -> None:
         line.draw(canvas=self.__canvas, fill_color=fill_color)
