@@ -2,7 +2,6 @@ from window import TWindow
 from point import Point
 from cell import Cell
 from random import randint
-from time import sleep
 
 
 def main():
@@ -21,7 +20,7 @@ def main():
         for row in range(rows):
             start_point = (int(topleft_corner[0] + (row * cell_width)), int(topleft_corner[1] + (col * cell_height)))
             end_point = (int(start_point[0] + cell_width), int(start_point[1] + cell_height))
-            c = get_cell(win, [start_point, end_point, rand_walls(0.3)])
+            c = get_cell(win, [start_point, end_point, rand_walls(0.33)])
             c.draw()
             cell_list[str(row) + str(col)] = c
 
@@ -45,34 +44,9 @@ def main():
                 if leftkey in cell_list:
                     # print(f"leftkey: {leftkey}")
                     cur_cell.draw_move(cell_list[leftkey])
-    # prev_cell = None
-    # for cl in cell_list:
-    #     if prev_cell is not None:
-            # cl.draw_move(prev_cell)
-        # prev_cell = cl
 
-    outerbox = get_cell(win, [topleft_corner, bottomright_corner,[True,True,True,True]])
-    outerbox.draw()
-
-
-
-    # cell_to_draw = [
-    #     [(100,100),(500,500), [rand_bool(), rand_bool(),rand_bool(),rand_bool()]],
-    #     [(600,200),(900,500), [rand_bool(), rand_bool(),rand_bool(),rand_bool()]],
-    #     [(1200,200),(1300,500), [rand_bool(), rand_bool(),rand_bool(),rand_bool()]]
-    # ]
-    # cell_to_draw = [
-    #     [(100,100),(500,500), [True, True,True,False]],
-    #     [(600,200),(900,500), [True, False,True,True]],
-    #     [(1200,200),(1300,500), [True, True,True,True]]
-    # ]
-
-    # for cell in cell_to_draw:
-    #     c = get_cell(win, cell)
-    #     c.draw()
-    # c1 = get_cell(win, cell_to_draw[0])
-    # c2 = get_cell(win, cell_to_draw[1])
-    # c1.draw_move(c2, undo=rand_bool())
+    # outerbox = get_cell(win, [topleft_corner, bottomright_corner,[True,True,True,True]])
+    # outerbox.draw()
 
     win.wait_for_close()
 
