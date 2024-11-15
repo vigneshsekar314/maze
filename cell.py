@@ -9,7 +9,7 @@ class Cell:
     Represents a cell in a maze.
     """
 
-    def __init__(self, win: TWindow, top_left: Point, bottom_right: Point, has_top_wall: bool, has_left_wall: bool, has_bottom_wall: bool, has_right_wall: bool) -> None:
+    def __init__(self, top_left: Point, bottom_right: Point, has_top_wall: bool, has_left_wall: bool, has_bottom_wall: bool, has_right_wall: bool, win: TWindow | None = None) -> None:
         """
         Represents a cell in a maze. It takes a TWindow object in which it exists. Top_left is the top left (x,y) co-ordinate and bottom_right is the bottom-right (x,y) co-ordinate.
         Four other booleans indicate if there should be a wall in the cell.
@@ -24,18 +24,19 @@ class Cell:
         self._top_right = Point(x=self._bottom_right.get_x(), y=self._top_left.get_y())
         self._bottom_left = Point(x=self._top_left.get_x(), y=self._bottom_right.get_y())
 
-    def draw(self) -> None:
+    def draw(self, fill_color: str = "blue") -> None:
         """
         draws a cell in the maze.
         """
-        if self.has_top_wall:
-            self._win.draw_line(Line(self._top_left, self._top_right))
-        if self.has_left_wall:
-            self._win.draw_line(Line(self._top_left, self._bottom_left))
-        if self.has_bottom_wall:
-            self._win.draw_line(Line(self._bottom_left, self._bottom_right))
-        if self.has_right_wall:
-            self._win.draw_line(Line(self._top_right, self._bottom_right))
+        if self._win is not None:
+            # if self.has_top_wall:
+            self._win.draw_line(Line(self._top_left, self._top_right), fill_color=fill_color if self.has_top_wall else "white")
+            # if self.has_left_wall:
+            self._win.draw_line(Line(self._top_left, self._bottom_left), fill_color=fill_color if self.has_left_wall else "white")
+            # if self.has_bottom_wall:
+            self._win.draw_line(Line(self._bottom_left, self._bottom_right), fill_color=fill_color if self.has_bottom_wall else "white")
+            # if self.has_right_wall:
+            self._win.draw_line(Line(self._top_right, self._bottom_right), fill_color=fill_color if self.has_right_wall else "white")
 
     def draw_move(self, to_cell, undo: bool = False) -> None:
         """
@@ -52,7 +53,8 @@ class Cell:
         is_left = (not (self.has_left_wall or to_cell.has_right_wall)) and (self._top_left.get_x() > to_cell._top_left.get_x())
         # print(f"isright, istop, isbottom, isleft: {is_right}, { is_top }, { is_bottom }, { is_left }")
         if is_right or is_top or is_bottom or is_left:
-            self._win.draw_line(Line(from_center, to_center), fill_color=filcol)
+            if self._win is not None:
+                self._win.draw_line(Line(from_center, to_center), fill_color=filcol)
 
     def get_center(self, cell):
         """
@@ -65,8 +67,8 @@ class Cell:
 def main():
     # test client
     win = TWindow(1900,900)
-    c = Cell(win,Point(50,100), Point(500,200), True, True, False, True)
-    c1 = Cell(win,Point(50,200), Point(500,400), False, True, True, True)
+    c = Cell(Point(50,100), Point(500,200), True, True, False, True, win)
+    c1 = Cell(Point(50,200), Point(500,400), False, True, True, True, win)
     c.draw()
     c1.draw()
     c.draw_move(c1)
