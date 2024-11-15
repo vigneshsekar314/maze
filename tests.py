@@ -17,8 +17,8 @@ class MazeTest(TestCase):
         rows = 10
         cols = 10
         ma = Maze(rows, cols, Point(50,50), 20, 20)
-        self.assertEqual(ma._cells[0][0].has_left_wall, False)
-        self.assertEqual(ma._cells[rows-1][cols-1].has_right_wall, False)
+        self.assertEqual(ma._cells[0][0].has_top_wall, False)
+        self.assertEqual(ma._cells[rows-1][cols-1].has_bottom_wall, False)
 
 if __name__ == "__main__":
     main()

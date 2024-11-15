@@ -29,13 +29,9 @@ class Cell:
         draws a cell in the maze.
         """
         if self._win is not None:
-            # if self.has_top_wall:
             self._win.draw_line(Line(self._top_left, self._top_right), fill_color=fill_color if self.has_top_wall else "white")
-            # if self.has_left_wall:
             self._win.draw_line(Line(self._top_left, self._bottom_left), fill_color=fill_color if self.has_left_wall else "white")
-            # if self.has_bottom_wall:
             self._win.draw_line(Line(self._bottom_left, self._bottom_right), fill_color=fill_color if self.has_bottom_wall else "white")
-            # if self.has_right_wall:
             self._win.draw_line(Line(self._top_right, self._bottom_right), fill_color=fill_color if self.has_right_wall else "white")
 
     def draw_move(self, to_cell, undo: bool = False) -> None:

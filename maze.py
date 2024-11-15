@@ -34,11 +34,11 @@ class Maze:
 
     def _break_entrance_and_exit(self):
         if len(self._cells) != 0:
-            self._cells[0][0] = self._draw_cell(0, 0, left_wall = False)
+            self._cells[0][0] = self._draw_cell(0, 0, top_wall = False)
             end_x = self.__rows - 1
             end_y = self.__cols - 1
             if len(self._cells) == self.__rows and len(self._cells[end_x]) == self.__cols:
-                self._cells[end_x][end_y] = self._draw_cell(end_x, end_y, right_wall=False)
+                self._cells[end_x][end_y] = self._draw_cell(end_x, end_y, bottom_wall = False)
                 self._animate()
 
     def _draw_cell(self, i: int, j: int, top_wall: bool = True, left_wall: bool = True, bottom_wall: bool = True, right_wall: bool = True, fill_color: str = "blue") -> Cell:
