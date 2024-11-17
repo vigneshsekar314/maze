@@ -1,3 +1,4 @@
+from enum import unique
 from window import TWindow
 from point import Point
 from cell import Cell
@@ -15,6 +16,8 @@ class Maze:
         """
         self.__rows: int = rows
         self.__cols: int = cols
+        print(f"rows: {rows}")
+        print(f"cols: {cols}")
         self.__start_pt: Point = start_pt
         self.__cell_width: int = cell_width
         self.__cell_height: int = cell_height
@@ -26,7 +29,8 @@ class Maze:
         if rows !=0 and cols!=0:
             # self._cells[0][0].has_bottom_wall = False
             # self._cells[0][0].draw()
-            self._break_walls_r(0,0)
+            # self._break_walls_r(0,0)
+            self._generate_valid_path(1,0,0,0)
             self._animate()
             # self.__print_not_visited()
 
@@ -111,61 +115,81 @@ class Maze:
         curr_cell.draw()
         return False
 
-    def _break_walls_rcopy(self, i, j, seed:int = 1, is_final_reached: bool = False) -> bool:
-        start_cell = self._cells[0][0] if len(self._cells) != 0 and len(self._cells[0]) != 0 else None
-        sequence_nbr = 7745698 * seed
-        curr_cell: Cell = self._cells[i][j]
-        final_cell = self._cells[len(self._cells) - 1][len(self._cells[0])-1]
-        if curr_cell.visited:
-            return False
-        curr_cell.visited = True
-        top_cell: Cell | None = self._cells[i][j-1] if j !=0 else None
-        bottom_cell: Cell | None = self._cells[i][j+1] if j < len(self._cells) - 1 else None
-        left_cell: Cell | None = self._cells[i-1][j] if i != 0 else None
-        right_cell: Cell | None = self._cells[i+1][j] if i < len(self._cells) - 1 else None
-        wall_info = []
-        if curr_cell.has_top_wall and j!=0:
-            wall_info.append("top")
-        if curr_cell.has_left_wall and i!=0:
-            wall_info.append("left")
-        if curr_cell.has_bottom_wall and j != (self.__rows - 1):
-            wall_info.append("bottom")
-        if curr_cell.has_right_wall and i != (self.__cols - 1):
-            wall_info.append("right")
-        if curr_cell.has_top_wall and top_cell is not None and top_cell.has_bottom_wall:
-            curr_cell.has_top_wall = False
-            curr_cell.draw()
-        if curr_cell.has_left_wall and left_cell is not None and left_cell.has_right_wall:
-            curr_cell.has_left_wall = False
-            curr_cell.draw()
-        if curr_cell.has_bottom_wall and bottom_cell is not None and bottom_cell.has_top_wall:
-            curr_cell.has_bottom_wall = False
-            curr_cell.draw()
-        if curr_cell.has_right_wall and right_cell is not None and right_cell.has_left_wall:
-            curr_cell.has_right_wall = False
-            curr_cell.draw()
-        if len(wall_info) != 0:
-            rand_sel = randint(0, len(wall_info)-1)
-            print(f"cell {i},{j} will remove wall {wall_info[rand_sel]}")
-            self.__decide_wall(i, j, wall_info[rand_sel], False)
-        if top_cell is not None and not top_cell.visited:
-            self._break_walls_r(i, j-1)
-        if left_cell is not None and not left_cell.visited:
-            self._break_walls_r(i-1, j)
-        if bottom_cell is not None and not bottom_cell.visited:
-            self._break_walls_r(i, j+1)
-        if right_cell is not None and not right_cell.visited:
-            self._break_walls_r(i+1, j)
-        if self.__win is not None:
-            self.__win.redraw()
-        return False
-
     def __print_not_visited(self):
         if len(self._cells) != 0 and len(self._cells[0]) !=0:
             for col in range(len(self._cells)):
                 for row in range(len(self._cells[0])):
                     if not self._cells[col][row].visited:
                         print(f"cell [{col}][{row}] is not visited")
+
+    def _generate_valid_path(self, seed: int = 1, row:int = 0, col:int = 0, digit_selector:int = 0, invalid_direction = "top", recursion_depth = 0) -> None:
+        if row == self.__rows - 1 and col == self.__cols -1:
+            print("destination reached")
+            return
+        unique_id = 1325496 * seed
+        if recursion_depth >= (self.__rows * self.__cols):
+            print("taking a lot of chances to reach destination")
+        unique_directions = ["top", "left", "bottom", "right"] if recursion_depth < (self.__rows * self.__cols) else ["bottom", "right"]
+        print(f"unique directions: {unique_directions}")
+        self._cells[row][col].visited = True
+        print(f"visited cell[{row}][{col}]")
+        digit_selector = digit_selector + 1 if digit_selector < len(str(unique_id)) - 1 else 0
+        recursion_depth += 1
+        # pick a direction based on first number, then steps based on second number, go in that direction untill the end of maze or a visited cell. Keep repeating until you hit the final cell
+        direction_num = self.get_digit(unique_id, digit_selector)
+        valid_directions = unique_directions
+        if invalid_direction in valid_directions:
+            valid_directions.remove(invalid_direction)
+        if row == 0 and "top" in valid_directions:
+            valid_directions.remove("top")
+        if row == self.__rows -1 and "bottom" in valid_directions:
+            valid_directions.remove("bottom")
+        if col == 0 and "left" in valid_directions:
+            valid_directions.remove("left")
+        if col == self.__cols - 1 and "right" in valid_directions:
+            valid_directions.remove("right")
+        if len(valid_directions) == 0:
+            raise Exception("something went wrong with the logic")
+        direction_num = direction_num % len(valid_directions)
+        direction = valid_directions[direction_num]
+        #update values in current and next cell and proceed to next cell
+        cur = self._cells[row][col]
+        match direction:
+            case "top":
+                next_cell = self._cells[row-1][col]
+                cur.has_top_wall = False
+                next_cell.has_bottom_wall = False
+                cur.draw()
+                next_cell.draw()
+                self._generate_valid_path(seed, row-1, col, digit_selector, "bottom", recursion_depth)
+            case "left":
+                next_cell = self._cells[row][col-1]
+                cur.has_left_wall = False
+                next_cell.has_right_wall = False
+                cur.draw()
+                next_cell.draw()
+                cur.draw()
+                next_cell.draw()
+                self._generate_valid_path(seed, row, col-1, digit_selector, "right", recursion_depth)
+            case "bottom":
+                next_cell = self._cells[row + 1][col]
+                cur.has_bottom_wall = False
+                next_cell.has_top_wall = False
+                cur.draw()
+                next_cell.draw()
+                self._generate_valid_path(seed, row + 1, col, digit_selector, "top", recursion_depth) 
+            case "right":
+                next_cell = self._cells[row][col + 1]
+                cur.has_right_wall = False
+                next_cell.has_left_wall = False
+                cur.draw()
+                next_cell.draw()
+                self._generate_valid_path(seed, row, col+1, digit_selector, "left", recursion_depth)
+            case _:
+                raise Exception("something went wrong with the direction logic")
+
+    def get_digit(self, num: int, pos: int) -> int:
+        return int(str(num)[pos])
 
     def __decide_wall(self, i: int, j: int, wallname: str) -> None:
         """
@@ -174,16 +198,12 @@ class Maze:
         match wallname:
             case "top":
                 self._cells[i][j].has_top_wall = False
-                print(f"top cell broken for cell[{i}][{j}]")
             case "bottom":
                 self._cells[i][j].has_bottom_wall = False
-                print(f"bottom cell broken for cell[{i}][{j}]")
             case "left":
                 self._cells[i][j].has_left_wall = False
-                print(f"left cell broken for cell[{i}][{j}]")
             case "right":
                 self._cells[i][j].has_right_wall = False
-                print(f"right cell broken for cell[{i}][{j}]")
             case _:
                 raise Exception("this case is not valid")
 
@@ -192,6 +212,10 @@ def main():
     win = TWindow(1900, 900)
     Maze(5, 5, Point(100,100), 150, 150, win)
     win.wait_for_close()
+    # test1 = 1234567
+    # m = Maze(10,10, Point(10,10), 50, 50)
+    # print(m.get_digit(test1, 1))
+
 
 if __name__ == "__main__":
     main()
