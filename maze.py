@@ -119,8 +119,8 @@ class Maze:
         return False
 
     def wall_randomize(self):
-        for col in range(self.__cols):
-            for row in range(self.__rows):
+        for col in range(self.__cols - 1):
+            for row in range(self.__rows - 1):
                 cell = self._cells[row][col]
                 if not cell.visited:
                     count = int(cell.has_right_wall) + int(cell.has_left_wall) + int(cell.has_top_wall) + int(cell.has_bottom_wall)
@@ -158,11 +158,11 @@ class Maze:
             valid_directions.remove(invalid_direction)
         if row == 0 and "top" in valid_directions:
             valid_directions.remove("top")
-        if row == self.__rows -1 and "bottom" in valid_directions:
+        if row > self.__rows -2 and "bottom" in valid_directions:
             valid_directions.remove("bottom")
         if col == 0 and "left" in valid_directions:
             valid_directions.remove("left")
-        if col == self.__cols - 1 and "right" in valid_directions:
+        if col > self.__cols - 2 and "right" in valid_directions:
             valid_directions.remove("right")
         if len(valid_directions) == 0:
             raise Exception("something went wrong with the logic")
@@ -204,19 +204,21 @@ class Maze:
                 next_cell.draw()
                 self._generate_valid_path(seed, row, col-1, digit_selector, "right", recursion_depth)
             case "bottom":
-                next_cell = self._cells[row + 1][col]
-                cur.has_bottom_wall = False
-                next_cell.has_top_wall = False
-                cur.draw()
-                next_cell.draw()
-                self._generate_valid_path(seed, row + 1, col, digit_selector, "top", recursion_depth) 
+                if (row + 1) <= self.__rows - 1:
+                    next_cell = self._cells[row + 1][col] 
+                    cur.has_bottom_wall = False
+                    next_cell.has_top_wall = False
+                    cur.draw()
+                    next_cell.draw()
+                    self._generate_valid_path(seed, row + 1, col, digit_selector, "top", recursion_depth) 
             case "right":
-                next_cell = self._cells[row][col + 1]
-                cur.has_right_wall = False
-                next_cell.has_left_wall = False
-                cur.draw()
-                next_cell.draw()
-                self._generate_valid_path(seed, row, col+1, digit_selector, "left", recursion_depth)
+                if (col + 1) <= self.__cols - 1:
+                    next_cell = self._cells[row][col + 1]
+                    cur.has_right_wall = False
+                    next_cell.has_left_wall = False
+                    cur.draw()
+                    next_cell.draw()
+                    self._generate_valid_path(seed, row, col+1, digit_selector, "left", recursion_depth)
             case _:
                 raise Exception("something went wrong with the direction logic")
 
