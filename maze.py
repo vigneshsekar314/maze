@@ -9,7 +9,7 @@ from random import randint
 class Maze:
 
 
-    def __init__(self, rows: int, cols: int, start_pt: Point, cell_width: int, cell_height:int, win: TWindow | None = None, ani_speed: float | None = None) -> None:
+    def __init__(self, rows: int, cols: int, start_pt: Point, cell_width: int, cell_height:int, win: TWindow | None = None, ani_speed: float | None = None, seed: int = 1) -> None:
         """
         creates a maze box with provided row and column count. It takes a start_pt argument to specify the starting x,y co-ordinate of the maze.
         cell_width and cell_height specifies the width and height dimensions of the cell.
@@ -30,7 +30,8 @@ class Maze:
             # self._cells[0][0].has_bottom_wall = False
             # self._cells[0][0].draw()
             # self._break_walls_r(0,0)
-            self._generate_valid_path(1,0,0,0)
+            print(f"seed: {seed}")
+            self._generate_valid_path(seed,0,0,0)
             self._animate()
             # self.__print_not_visited()
 

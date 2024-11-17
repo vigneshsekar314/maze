@@ -3,11 +3,15 @@ from point import Point
 from cell import Cell
 from random import randint
 from maze import Maze
+from sys import argv
 
 
 def main():
     win = TWindow(800, 600)
-    Maze(10,10, Point(10,10), 50, 50, win, 0.01)
+    seed = 1
+    if len(argv) > 1:
+        seed = int(argv[1])
+    Maze(10,10, Point(10,10), 50, 50, win, 0.01, seed)
 
     win.wait_for_close()
 
