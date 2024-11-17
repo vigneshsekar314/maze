@@ -32,6 +32,8 @@ class Maze:
             # self._break_walls_r(0,0)
             print(f"seed: {seed}")
             self._generate_valid_path(seed,0,0,0)
+            self.wall_randomize()
+            # self._break_walls_r(0,0)
             self._animate()
             # self.__print_not_visited()
 
@@ -116,18 +118,31 @@ class Maze:
         curr_cell.draw()
         return False
 
-    def __print_not_visited(self):
-        if len(self._cells) != 0 and len(self._cells[0]) !=0:
-            for col in range(len(self._cells)):
-                for row in range(len(self._cells[0])):
-                    if not self._cells[col][row].visited:
-                        print(f"cell [{col}][{row}] is not visited")
+    def wall_randomize(self):
+        for col in range(self.__cols):
+            for row in range(self.__rows):
+                cell = self._cells[row][col]
+                if not cell.visited:
+                    count = int(cell.has_right_wall) + int(cell.has_left_wall) + int(cell.has_top_wall) + int(cell.has_bottom_wall)
+                    if count == 4:
+                        # break some walls!
+                        if row != 0:
+                            cell.has_top_wall = False
+                        elif row != self.__rows -1:
+                            cell.has_bottom_wall = False
+                        elif col != self.__cols -1:
+                            cell.has_right_wall = False
+                        elif col != 0:
+                            cell.has_left_wall = False
+                        cell.draw()
+
+
 
     def _generate_valid_path(self, seed: int = 1, row:int = 0, col:int = 0, digit_selector:int = 0, invalid_direction = "top", recursion_depth = 0) -> None:
         if row == self.__rows - 1 and col == self.__cols -1:
             print("destination reached")
             return
-        unique_id = 1325496 * seed
+        unique_id = 772394268 * seed
         if recursion_depth >= (self.__rows * self.__cols):
             print("taking a lot of chances to reach destination")
         unique_directions = ["top", "left", "bottom", "right"] if recursion_depth < (self.__rows * self.__cols) else ["bottom", "right"]
@@ -151,6 +166,22 @@ class Maze:
             valid_directions.remove("right")
         if len(valid_directions) == 0:
             raise Exception("something went wrong with the logic")
+        # adding a logic to prevent looping over the same direction
+        if not row == self.__rows - 1  and not row == 0:
+            wallcount = 0
+            if self._cells[row][col].has_left_wall == False:
+                wallcount += 1
+            if self._cells[row][col].has_bottom_wall == False:
+                wallcount += 1
+            if self._cells[row][col].has_right_wall == False:
+                wallcount += 1
+            if self._cells[row][col].has_top_wall == False:
+                wallcount += 1
+            if wallcount >= 3 and "left" in valid_directions and len(valid_directions) != 1:
+                valid_directions.remove("left")
+            if wallcount >= 3 and "top" in valid_directions and len(valid_directions) != 1:
+                valid_directions.remove("top")
+            
         direction_num = direction_num % len(valid_directions)
         direction = valid_directions[direction_num]
         #update values in current and next cell and proceed to next cell
