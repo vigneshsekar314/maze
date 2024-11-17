@@ -23,6 +23,7 @@ class Cell:
         self._bottom_right = bottom_right
         self._top_right = Point(x=self._bottom_right.get_x(), y=self._top_left.get_y())
         self._bottom_left = Point(x=self._top_left.get_x(), y=self._bottom_right.get_y())
+        self.visited = False
 
     def draw(self, fill_color: str = "blue") -> None:
         """
