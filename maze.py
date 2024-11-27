@@ -31,9 +31,10 @@ class Maze:
             # self._cells[0][0].draw()
             # self._break_walls_r(0,0)
             print(f"seed: {seed}")
-            self._generate_valid_path(seed,0,0,0)
-            self.wall_randomize()
+            # self._generate_valid_path(seed,0,0,0)
+            # self.wall_randomize()
             # self._break_walls_r(0,0)
+            self._gen_unique_path(24335124238697998)
             self._animate()
             # self.__print_not_visited()
 
@@ -77,7 +78,6 @@ class Maze:
 
     def _break_walls_r(self, i, j, seed:int = 1, is_final_reached: bool = False) -> bool:
         sequence_nbr = 7745698 * seed
-
         curr_cell: Cell = self._cells[i][j]
         final_cell = self._cells[len(self._cells) - 1][len(self._cells[0])-1]
         if curr_cell.visited:
@@ -136,7 +136,18 @@ class Maze:
                             cell.has_left_wall = False
                         cell.draw()
 
-
+    def wall_remove(self, row: int, col: int, direction: str) -> None:
+        cell = self._cells[row][col]
+        if row != 0 and direction == "top":
+            cell.has_top_wall = False
+        elif row != self.__rows -1 and direction == "bottom":
+            cell.has_bottom_wall = False
+        elif col != self.__cols -1 and direction == "right":
+            cell.has_right_wall = False
+        elif col != 0 and direction == "left":
+            cell.has_left_wall = False
+        cell.draw()
+        print(f"wall removed: {direction}")
 
     def _generate_valid_path(self, seed: int = 1, row:int = 0, col:int = 0, digit_selector:int = 0, invalid_direction = "top", recursion_depth = 0) -> None:
         if row == self.__rows - 1 and col == self.__cols -1:
@@ -224,6 +235,71 @@ class Maze:
 
     def get_digit(self, num: int, pos: int) -> int:
         return int(str(num)[pos])
+
+    def _gen_unique_path(self, unique_id: int) -> None:
+        unique_cpy = unique_id
+        if self.__rows == 0 or self.__cols == 0:
+            return
+        start: Cell = self._cells[0][0]
+        start_x = 0
+        start_y = 0
+        end_x = self.__rows - 1
+        end_y = self.__cols - 1
+        cur_x = start_x
+        cur_y = start_y
+        end: Cell = self._cells[end_x][end_y]
+        increment = 1
+        while cur_x != end_x and cur_y != end_y:
+            print(f"cur cell: {cur_x},{cur_y}")
+            checkpoint_x: int = increment * ((self.__rows-1) // 4)
+            checkpoint_y: int = increment * ((self.__cols-1) // 4)
+            print(f"check x,y: {checkpoint_x}, {checkpoint_y}")
+            checkpoint: Cell = self._cells[checkpoint_x][checkpoint_y]
+            if checkpoint == start or checkpoint == end:
+                break
+            valid_paths = ["bottom", "right", "top", "left"]
+            if cur_x == checkpoint_x and cur_y == checkpoint_y:
+                increment += 1
+                continue
+            if cur_x >= checkpoint_x or cur_x == end_x:
+                valid_paths.remove("right")
+            if cur_y >= checkpoint_y or cur_y == end_y:
+                valid_paths.remove("bottom")
+            if cur_x == 0:
+                valid_paths.remove("top")
+            if cur_y == 0:
+                valid_paths.remove("left")
+            digit = unique_cpy % len(valid_paths)
+            next_cell = valid_paths[digit]
+            unique_cpy = int(unique_cpy / 10)
+            print(f"next cell: {next_cell}")
+            if next_cell == "top":
+                self.wall_remove(cur_x, cur_y, "top")
+                cur_x -= 1
+            if next_cell == "bottom":
+                self.wall_remove(cur_x, cur_y, "bottom")
+                cur_x += 1
+            if next_cell == "left":
+                self.wall_remove(cur_x, cur_y, "left")
+                cur_y -= 1
+            if next_cell == "right":
+                self.wall_remove(cur_x, cur_y, "right")
+                cur_y += 1
+
+    def __choose_rand_cell(self, p1: Point, p2: Point, digit: str) -> Point:
+        if p1.get_x() >= self.__rows -1 or p2.get_x() >= self.__rows -1 or p1.get_x() <= 0 or p2.get_x() <= 0:
+            raise Exception("not a valid range")
+        digit_one = int(digit[0])
+        digit_two = int(digit[1])
+        x_range = p1.get_x() - p2.get_x()
+        x_range = x_range if x_range > 0 else -1 * x_range
+        y_range = p1.get_y() - p2.get_y()
+        y_range = y_range if y_range > 0 else -1 * y_range
+        x_point = digit_one % x_range
+        y_point = digit_two % y_range
+        return Point(x_point, y_point)
+
+
 
     def __decide_wall(self, i: int, j: int, wallname: str) -> None:
         """
